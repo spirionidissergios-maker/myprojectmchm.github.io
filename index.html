@@ -5,9 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Презентация проекта</title>
     <style>
-        body { margin: 0; background-color: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
-        model-viewer { width: 95%; height: 85vh; background-color: #252525; border-radius: 10px; }
+        body { 
+            margin: 0; 
+            background-color: #1a1a1a; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            font-family: sans-serif; 
+        }
+
+        model-viewer { 
+            width: 95%; 
+            height: 85vh; 
+            background-color: #252525; 
+            border-radius: 10px; 
+            --poster-color: transparent;
+        }
+
         .hint { color: #888; margin-top: 15px; font-size: 14px; }
+
+        /* Стили для точки (Хотспота) */
+        .Hotspot {
+            background: #2196f3;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.3s;
+        }
+
+        .Hotspot:hover {
+            transform: scale(1.2);
+        }
+
+        /* Стили для текста подсказки */
+        .HotspotAnnotation {
+            display: none; /* Скрыто по умолчанию */
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            color: #333;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 12px;
+            position: absolute;
+            left: 25px;
+            top: -10px;
+            width: max-content;
+            pointer-events: none; /* Чтобы текст не мешал кликать по точке */
+        }
+
+        /* Показываем текст при наведении на точку */
+        .Hotspot:hover .HotspotAnnotation {
+            display: block;
+        }
+
+        /* Кнопка AR (справа внизу) */
+        #ar-button {
+            background-color: #fff;
+            border-radius: 4px;
+            border: none;
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -25,27 +94,26 @@
         environment-image="neutral"
         camera-orbit="45deg 75deg 10m" 
         field-of-view="30deg"
-        min-camera-orbit="auto auto auto" 
-        max-camera-orbit="auto auto auto">
+        ar
+        ar-modes="webxr scene-viewer quick-look">
+
+        <button class="Hotspot" slot="hotspot-1" 
+                data-position="0.019392m 2.124585m 18.385257m" 
+                data-normal="0m 0m 1m" 
+                data-visibility-attribute="visible">
+            <div class="HotspotAnnotation">Доменная печь</div>
+        </button>
+
+        <button slot="ar-button" id="ar-button">
+            Посмотреть в AR
+        </button>
+
     </model-viewer>
 
-    <div class="hint">Удерживайте левую кнопку мыши для вращения • Колесико для зума</div>
-model-viewer src="my_model.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls tone-mapping="neutral" poster="poster.webp" shadow-intensity="1">
-    <button class="Hotspot" slot="hotspot-1" data-position="0.019392034056013585m 2.124585378444454m 18.38525772094725m" data-normal="0m 0m 1m" data-visibility-attribute="visible">
-        <div class="HotspotAnnotation">Доменная печь
-        </div>
-    </button>
-    <div class="progress-bar hide" slot="progress-bar">
-        <div class="update-bar"></div>
-    </div>
-    <button slot="ar-button" id="ar-button">
-        View in your space
-    </button>
-    <div id="ar-prompt">
-        <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
-    </div>
-</model-viewer>
+    <div class="hint">Наведите на синюю точку, чтобы увидеть описание • Удерживайте ЛКМ для вращения</div>
 
+</body>
+</html>
 
 </body>
 </html>
