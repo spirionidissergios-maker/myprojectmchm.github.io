@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Презентация проекта</title>
+    <style>
+        body { margin: 0; background-color: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+        model-viewer { width: 95%; height: 85vh; background-color: #252525; border-radius: 10px; }
+        .hint { color: #888; margin-top: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <model-viewer 
+        src="my_model.glb" 
+        alt="3D модель завода" 
+        camera-controls 
+        auto-rotate 
+        shadow-intensity="1.5" 
+        shadow-softness="1"
+        exposure="0.8" 
+        environment-image="neutral"
+        camera-orbit="45deg 75deg 10m" 
+        field-of-view="30deg"
+        min-camera-orbit="auto auto auto" 
+        max-camera-orbit="auto auto auto">
+    </model-viewer>
+
+    <div class="hint">Удерживайте левую кнопку мыши для вращения • Колесико для зума</div>
+
+</body>
+</html>
