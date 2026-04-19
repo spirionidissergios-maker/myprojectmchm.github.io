@@ -1,19 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Технологии Газоочистки | Студент МЧМ-2024</title>
+    <title>3D Газ тазарту | МЧМ-2024</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         :root { --accent: #00a8ff; --bg: #0a0a0a; }
-        body { margin: 0; background: var(--bg); font-family: 'Segoe UI', Tahoma, sans-serif; color: white; overflow: hidden; }
-        
+        body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
         model-viewer { width: 100vw; height: 100vh; display: block; }
 
-        /* Языки */
+        /* Тіл ауыстырғыш */
         .lang-switcher {
-            position: absolute; top: 25px; right: 25px; z-index: 1000;
+            position: absolute; top: 25px; right: 25px; z-index: 10000;
             display: flex; gap: 8px; background: rgba(0,0,0,0.7); padding: 5px; border-radius: 8px;
         }
         .lang-btn {
@@ -22,7 +21,7 @@
         }
         .lang-btn.active { background: var(--accent); border-color: var(--accent); }
 
-        /* Инфо-панель хотспотов */
+        /* Панель хотспотов */
         #info-panel {
             position: absolute; top: 30px; left: 30px; width: 380px;
             background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(15px);
@@ -34,7 +33,7 @@
         #info-panel h2 { margin: 0 0 12px 0; font-size: 20px; color: var(--accent); }
         #info-panel p { margin: 0; font-size: 15px; line-height: 1.7; color: #e0e0e0; }
 
-        /* Кнопки управления */
+        /* Кнопки */
         .bottom-controls { position: absolute; bottom: 30px; left: 30px; display: flex; gap: 15px; z-index: 500; }
         .control-btn {
             background: rgba(0,0,0,0.7); border: 1px solid var(--accent);
@@ -44,32 +43,29 @@
         .control-btn:hover { background: var(--accent); }
         .control-btn.active { background: #ff4500; border-color: #ff4500; }
 
-        /* ОТДЕЛЬНАЯ СТРАНИЦА "О ПРОЕКТЕ" */
+        /* Страница О ПРОЕКТЕ */
         #about-page {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #121212; z-index: 9999; display: none;
-            overflow-y: auto; padding: 60px 20px; box-sizing: border-box;
+            overflow-y: auto; padding: 80px 20px 40px; box-sizing: border-box;
         }
-        .about-container { max-width: 900px; margin: 0 auto; }
+        .about-container { max-width: 900px; margin: 0 auto; text-align: left; }
         .about-container h1 { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
-        .about-container h2 { color: var(--accent); margin-top: 30px; }
-        .about-container p, .about-container li { font-size: 17px; line-height: 1.8; color: #eee; }
-        .about-container ul { padding-left: 20px; }
+        .about-container h2 { color: var(--accent); margin-top: 35px; }
+        .about-container p, .about-container li { font-size: 17px; line-height: 1.8; color: #eee; margin-bottom: 10px; }
         .close-about { position: fixed; top: 25px; left: 25px; z-index: 10000; }
 
-        /* Хотспоты */
         .Hotspot {
             background: var(--accent); border-radius: 50%; border: 2px solid #fff;
             width: 20px; height: 20px; cursor: pointer; box-shadow: 0 0 20px rgba(0,168,255,0.6);
         }
-        #ar-button { background: #fff; border-radius: 20px; border: none; padding: 12px 24px; position: absolute; bottom: 30px; right: 30px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLang('ru')">RU</button>
-        <button class="lang-btn" onclick="setLang('kz')">KZ</button>
+        <button class="lang-btn active" id="btn-ru" onclick="setLang('ru')">RU</button>
+        <button class="lang-btn" id="btn-kz" onclick="setLang('kz')">KZ</button>
     </div>
 
     <div id="info-panel">
@@ -78,25 +74,22 @@
     </div>
 
     <div id="about-page">
-        <button class="control-btn close-about" onclick="toggleAbout()">← НАЗАД К МОДЕЛИ</button>
-        <div class="about-container" id="about-content">
-            </div>
+        <button class="control-btn close-about" id="back-btn" onclick="toggleAbout()">← НАЗАД</button>
+        <div class="about-container" id="about-content"></div>
     </div>
 
     <div class="bottom-controls">
         <button class="control-btn" onclick="toggleXray()" id="xray-btn">X-RAY РЕЖИМ</button>
-        <button class="control-btn" onclick="toggleAbout()">О ПРОЕКТЕ</button>
+        <button class="control-btn" id="about-btn" onclick="toggleAbout()">О ПРОЕКТЕ</button>
     </div>
 
-    <model-viewer id="main-model" src="my_model.glb" ar camera-controls shadow-intensity="2" auto-rotate>
-        <button class="Hotspot" slot="hotspot-8" data-position="0.5644m 1.8532m 18.3852m" data-normal="0m 0m 1m" onmouseover="showData(8)" onmouseout="hideInfo()"></button>
-        <button class="Hotspot" slot="hotspot-9" data-position="11.1544m 4.0896m 14.5385m" data-normal="0.0958m -0.2075m 0.9735m" onmouseover="showData(9)" onmouseout="hideInfo()"></button>
-        <button class="Hotspot" slot="hotspot-10" data-position="22.2750m 4.0559m 17.3067m" data-normal="0m 0m 1m" onmouseover="showData(10)" onmouseout="hideInfo()"></button>
-        <button class="Hotspot" slot="hotspot-11" data-position="30.9266m 4.4094m 15.5866m" data-normal="-0.0980m 0m 0.9951m" onmouseover="showData(11)" onmouseout="hideInfo()"></button>
-        <button class="Hotspot" slot="hotspot-12" data-position="38.7348m 1.9256m 14.6947m" data-normal="-0.0157m -0.4366m 0.8994m" onmouseover="showData(12)" onmouseout="hideInfo()"></button>
-        <button class="Hotspot" slot="hotspot-13" data-position="45.1935m 13.1032m 15.1441m" data-normal="-0.0979m 0.0204m 0.9949m" onmouseover="showData(13)" onmouseout="hideInfo()"></button>
-        
-        <button slot="ar-button" id="ar-button">AR РЕЖИМ</button>
+    <model-viewer id="main-model" src="my_model.glb" ar camera-controls shadow-intensity="2">
+        <button class="Hotspot" slot="hotspot-8" data-position="0.5644m 1.8532m 18.3852m" onmouseover="showData(8)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-9" data-position="11.1544m 4.0896m 14.5385m" onmouseover="showData(9)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-10" data-position="22.2750m 4.0559m 17.3067m" onmouseover="showData(10)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-11" data-position="30.9266m 4.4094m 15.5866m" onmouseover="showData(11)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-12" data-position="38.7348m 1.9256m 14.6947m" onmouseover="showData(12)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-13" data-position="45.1935m 13.1032m 15.1441m" onmouseover="showData(13)" onmouseout="hideInfo()"></button>
     </model-viewer>
 
     <script>
@@ -111,58 +104,70 @@
                 11: { t: "Скруббер (Мокрая очистка)", d: "Аппарат, в котором газ промывается жидкостью (обычно водой или щелочным раствором). Эффективно удаляет не только остатки пыли, но и опасные газообразные примеси (SO2, HCl), охлаждая поток перед дальнейшей обработкой." },
                 12: { t: "Плазменный реактор", d: "Инновационная установка финишной очистки. Высокоэнергетическая плазма разрушает молекулы токсичных органических соединений и диоксинов, превращая их в безопасные элементарные компоненты. Обеспечивает высочайший экологический стандарт." },
                 13: { t: "Дымовая труба", d: "Финальное звено системы. Высотное сооружение создает естественную тягу и обеспечивает рассеивание полностью очищенного и охлажденного газа в верхних слоях атмосферы, исключая концентрацию вредных веществ у земли." },
+                xrayOn: "ОБЫЧНЫЙ ВИД", xrayOff: "X-RAY РЕЖИМ", aboutBtn: "О ПРОЕКТЕ", backBtn: "← НАЗАД К МОДЕЛИ",
                 about: `
                     <h1>О ПРОЕКТЕ</h1>
                     <p>Я являюсь студентом группы <b>МЧМ-2024</b> и занимаюсь разработкой проекта, посвящённого инновационному методу очистки промышленных газов. В основе работы лежит комбинированная система газоочистки, включающая последовательность технологических узлов:</p>
                     <p style="text-align:center; color: #00a8ff; font-weight: bold;">Печь → Циклон → Рукавный фильтр → Скруббер → Плазменный реактор → Дымовая труба</p>
-                    
                     <h2>Суть проекта</h2>
-                    <p>Проект направлен на повышение эффективности очистки отходящих газов металлургических и других промышленных производств. В отличие от традиционных решений, где используется один или два метода очистки, предлагается многоступенчатая комбинированная система, в которой каждый элемент удаляет определённый тип загрязнений.</p>
-
-                    <h2>Принцип работы системы</h2>
+                    <p>Проект направлен на повышение эффективности очистки отходящих газов металлургических и других промышленных производств. Предлагается многоступенчатая комбинированная система, в которой каждый элемент удаляет определённый тип загрязнений.</p>
+                    <h2>Принцип работы</h2>
                     <ul>
-                        <li><b>Циклон</b> — удаляет крупные твёрдые частицы (пыль, золу) за счёт центробежных сил</li>
-                        <li><b>Рукавный фильтр</b> — улавливает мелкодисперсную пыль (до 1–5 мкм)</li>
-                        <li><b>Скруббер</b> — очищает газ от растворимых газов и частично улавливает аэрозоли</li>
-                        <li><b>Плазменный реактор</b> — разрушает токсичные газообразные соединения (NOx, SO₂, органические вещества) на молекулярном уровне</li>
+                        <li><b>Циклон</b> — удаляет крупные твёрдые частицы</li>
+                        <li><b>Рукавный фильтр</b> — улавливает мелкодисперсную пыль</li>
+                        <li><b>Скруббер</b> — очищает от растворимых газов</li>
+                        <li><b>Плазменный реактор</b> — разрушает токсичные соединения</li>
                     </ul>
-
-                    <h2>Почему комбинированный метод эффективнее</h2>
-                    <p>Использование одного метода очистки обычно даёт ограниченный результат, так как разные загрязнители требуют разных физических и химических подходов. Комбинированная система позволяет:</p>
-                    <ul>
-                        <li>Поэтапно удалять загрязнения разной природы</li>
-                        <li>Снижать нагрузку на каждый последующий аппарат</li>
-                        <li>Достигать высокой степени очистки за счёт синергии методов</li>
-                    </ul>
-
-                    <h2>Количественные показатели эффективности</h2>
-                    <p>По расчётам и данным аналогичных технологий:</p>
-                    <ul>
-                        <li><b>Циклон:</b> 70–90% удаления крупных частиц</li>
-                        <li><b>Рукавный фильтр:</b> до 99–99,5% по мелкой пыли</li>
-                        <li><b>Скруббер:</b> 80–95% по газовым загрязнителям</li>
-                        <li><b>Плазменный реактор:</b> до 90–98% разложения токсичных газов</li>
-                    </ul>
-                    <p><b>Суммарная эффективность системы может достигать 99,9% по твёрдым частицам и более 95–98% по газообразным загрязнителям.</b></p>
-
-                    <h2>Преимущества проекта</h2>
-                    <ul>
-                        <li>Существенное снижение выбросов в атмосферу</li>
-                        <li>Соответствие современным экологическим стандартам</li>
-                        <li>Универсальность (металлургия, энергетика, химия)</li>
-                        <li>Повышение экологической безопасности производства</li>
-                    </ul>
+                    <h2>Эффективность</h2>
+                    <p>Суммарная эффективность системы может достигать <b>99,9%</b> по твёрдым частицам и более <b>95–98%</b> по газообразным загрязнителям.</p>
                 `
             },
             kz: {
-                // Здесь добавь свой текст для KZ версии хотспотов (8-13) и "About"
+                8: { t: "Металлургиялық пеш", d: "Металл балқытылатын негізгі агрегат. Жану кезінде түзілетін газдар көп сатылы тазартуды қажет етеді." },
+                9: { t: "Циклондық сепаратор", d: "Құрғақ тазартудың бірінші сатысы. Ортадан тепкіш күш әсерімен шаң бөлшектері бункерге шөгеді." },
+                10: { t: "Жеңді сүзгі", d: "Жұқа механикалық тазарту аппараты. Шаңның 99.9%-на дейін ұстап қалатын мата жеңдерден тұрады." },
+                11: { t: "Скруббер", d: "Дымқыл тазарту. Газ сұйықтықпен жуылады." },
+                12: { t: "Плазмалық реактор", d: "Инновациялық қондырғы. Улы қосылыстарды молекулалық деңгейде бұзады." },
+                13: { t: "Түтін мұржасы", d: "Соңғы буын. Газды атмосфераның жоғарғы қабаттарына таратуды қамтамасыз етеді." },
+                xrayOn: "ҚАЛЫПТЫ КӨРІНІС", xrayOff: "X-RAY РЕЖИМІ", aboutBtn: "ЖОБА ТУРАЛЫ", backBtn: "← МОДЕЛЬГЕ ҚАЙТУ",
+                about: `
+                    <h1>ЖОБА ТУРАЛЫ</h1>
+                    <p>Мен <b>МЧМ-2024</b> тобының студентімін және өнеркәсіптік газдарды тазартудың инновациялық әдісіне арналған жобаны әзірлеумен айналысамын. Жұмыстың негізінде технологиялық тораптардың кезектілігінен тұратын аралас газ тазарту жүйесі жатыр:</p>
+                    <p style="text-align:center; color: #00a8ff; font-weight: bold;">Пеш → Циклон → Жеңді сүзгі → Скруббер → Плазмалық реактор → Түтін мұржасы</p>
+                    <h2>Жобаның мәні</h2>
+                    <p>Жоба металлургиялық және басқа да өнеркәсіптік өндірістердің шығатын газдарын тазарту тиімділігін арттыруға бағытталған. Мұнда әрбір элемент ластанудың белгілі бір түрін жоятын көп сатылы аралас жүйе ұсынылады.</p>
+                    <h2>Жұмыс принципі</h2>
+                    <ul>
+                        <li><b>Циклон</b> — ірі қатты бөлшектерді жояды</li>
+                        <li><b>Жеңді сүзгі</b> — ұсақ дисперсті шаңды ұстайды</li>
+                        <li><b>Скруббер</b> — еритін газдардан тазартады</li>
+                        <li><b>Плазмалық реактор</b> — улы қосылыстарды молекулалық деңгейде ыдыратады</li>
+                    </ul>
+                    <h2>Тиімділік</h2>
+                    <p>Жалпы тиімділік қатты бөлшектер бойынша <b>99,9%-ға</b> және газ тәрізді ластаушылар бойынша <b>95–98%-дан</b> астамға жетуі мүмкін.</p>
+                `
             }
         };
 
         function setLang(lang) {
             currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.toLowerCase() === lang));
-            document.getElementById('about-content').innerHTML = content[lang].about;
+            
+            // Обновляем кнопки языков
+            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('btn-kz').classList.toggle('active', lang === 'kz');
+            
+            // ОБНОВЛЯЕМ ТЕКСТ СТРАНИЦЫ "О ПРОЕКТЕ"
+            const aboutContent = document.getElementById('about-content');
+            aboutContent.innerHTML = content[lang].about; 
+            
+            // Обновляем кнопки управления
+            document.getElementById('about-btn').innerText = content[lang].aboutBtn;
+            document.getElementById('back-btn').innerText = content[lang].backBtn;
+            
+            const xrayBtn = document.getElementById('xray-btn');
+            xrayBtn.innerText = xrayEnabled ? content[lang].xrayOn : content[lang].xrayOff;
+            
+            hideInfo();
         }
 
         function showData(id) {
@@ -178,7 +183,8 @@
 
         function toggleAbout() {
             const page = document.getElementById('about-page');
-            page.style.display = (page.style.display === 'block') ? 'none' : 'block';
+            const isVisible = page.style.display === 'block';
+            page.style.display = isVisible ? 'none' : 'block';
         }
 
         function toggleXray() {
@@ -186,22 +192,22 @@
             const modelViewer = document.querySelector('#main-model');
             const materials = modelViewer.model.materials;
             materials.forEach(mat => {
-                // Условие срабатывает, если в названии материала есть 'body' или 'outer'
                 if (mat.name.toLowerCase().includes('body') || mat.name.toLowerCase().includes('outer')) {
                     mat.setAlphaMode(xrayEnabled ? "BLEND" : "OPAQUE");
                     mat.pbrMetallicRoughness.setBaseColorFactor(xrayEnabled ? [1, 1, 1, 0.2] : [1, 1, 1, 1]);
                 }
-                // Внутренности начинают светиться при X-Ray
                 if (mat.name.toLowerCase().includes('inner') || mat.name.toLowerCase().includes('glow')) {
                     mat.setEmissiveFactor(xrayEnabled ? [0, 0.6, 1] : [0, 0, 0]);
                 }
             });
-            const btn = document.getElementById('xray-btn');
-            btn.classList.toggle('active', xrayEnabled);
-            btn.innerText = xrayEnabled ? "ОБЫЧНЫЙ ВИД" : "X-RAY РЕЖИМ";
+            document.getElementById('xray-btn').innerText = xrayEnabled ? content[currentLang].xrayOn : content[currentLang].xrayOff;
+            document.getElementById('xray-btn').classList.toggle('active', xrayEnabled);
         }
 
-        setLang('ru');
+        // Инициализация при загрузке
+        window.addEventListener('load', () => {
+            setLang('ru');
+        });
     </script>
 </body>
 </html>
