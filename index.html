@@ -37,7 +37,7 @@
 
         .lang-btn.active { background: var(--accent); border-color: var(--accent); font-weight: bold; }
 
-        /* Инфо-панель (хотспоты) */
+        /* Инфо-панель */
         #info-panel {
             position: absolute;
             top: 30px;
@@ -59,54 +59,6 @@
         #info-panel.active { opacity: 1; transform: translateX(0); }
         #info-panel h2 { margin: 0 0 12px 0; font-size: 20px; color: var(--accent); letter-spacing: 1px; }
         #info-panel p { margin: 0; font-size: 15px; line-height: 1.7; color: #e0e0e0; text-align: justify; }
-
-        /* Нижняя панель управления */
-        .bottom-controls {
-            position: absolute;
-            bottom: 30px;
-            left: 30px;
-            display: flex;
-            gap: 15px;
-            z-index: 100;
-        }
-
-        .control-btn {
-            background: rgba(40, 40, 40, 0.8);
-            border: 1px solid var(--accent);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: 0.3s;
-            font-weight: 500;
-        }
-
-        .control-btn:hover { background: var(--accent); color: white; }
-        .control-btn.active { background: #ff4500; border-color: #ff4500; }
-
-        /* Модальное окно "О проекте" */
-        #about-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-content {
-            background: #1a1a1a;
-            padding: 40px;
-            border-radius: 15px;
-            max-width: 500px;
-            border: 1px solid var(--accent);
-            text-align: center;
-        }
-
-        .modal-content button { margin-top: 20px; }
 
         /* Хотспоты */
         .Hotspot {
@@ -136,20 +88,7 @@
         <p id="info-text">Выберите объект на модели для просмотра подробных характеристик.</p>
     </div>
 
-    <div class="bottom-controls">
-        <button class="control-btn" onclick="toggleXray()" id="xray-btn">X-RAY РЕЖИМ</button>
-        <button class="control-btn" onclick="toggleAbout()">О ПРОЕКТЕ</button>
-    </div>
-
-    <div id="about-modal" onclick="toggleAbout()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="about-title">О проекте</h2>
-            <p id="about-desc">Данная 3D-визуализация демонстрирует современные системы газоочистки в металлургии. Вы можете изучить каждый узел и посмотреть внутреннее устройство систем.</p>
-            <button class="control-btn" onclick="toggleAbout()">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <model-viewer id="main-model" src="my_model.glb" ar camera-controls tone-mapping="neutral" shadow-intensity="2" auto-rotate>
+    <model-viewer src="my_model.glb" ar camera-controls tone-mapping="neutral" shadow-intensity="2" auto-rotate>
 
         <button class="Hotspot" slot="hotspot-8" data-position="0.5644m 1.8532m 18.3852m" data-normal="0m 0m 1m" onmouseover="showData(8)" onmouseout="hideInfo()"></button>
         <button class="Hotspot" slot="hotspot-9" data-position="11.1544m 4.0896m 14.5385m" data-normal="0.0958m -0.2075m 0.9735m" onmouseover="showData(9)" onmouseout="hideInfo()"></button>
@@ -163,39 +102,34 @@
 
     <script>
         let currentLang = 'ru';
-        let xrayEnabled = false;
-
         const content = {
             ru: {
-                8: { t: "Металлургическая печь", d: "Основной теплотехнический агрегат, где происходит плавление металла..." },
-                9: { t: "Циклонный сепаратор", d: "Первая ступень сухой очистки. Газовый поток закручивается внутри конуса..." },
-                10: { t: "Рукавный фильтр (Baghouse)", d: "Аппарат для тонкой механической очистки..." },
-                11: { t: "Скруббер (Мокрая очистка)", d: "Аппарат, в котором газ промывается жидкостью..." },
-                12: { t: "Плазменный реактор", d: "Инновационная установка финишной очистки..." },
-                13: { t: "Дымовая труба", d: "Финальное звено системы..." },
-                aboutT: "О проекте",
-                aboutD: "Интерактивная 3D-модель промышленного комплекса газоочистки. Используйте X-Ray для просмотра внутренних компонентов."
+                8: { t: "Металлургическая печь", d: "Основной теплотехнический агрегат, где происходит плавление металла. В процессе горения топлива и плавления сырья образуется сложная смесь дымовых газов, содержащая твердые взвеси, оксиды углерода и серы, требующая многоступенчатой очистки перед выбросом." },
+                9: { t: "Циклонный сепаратор", d: "Первая ступень сухой очистки. Газовый поток закручивается внутри конуса; тяжелые частицы пыли под действием центробежной силы прижимаются к стенкам и оседают в бункере, а очищенный от крупной фракции газ уходит вверх." },
+                10: { t: "Рукавный фильтр (Baghouse)", d: "Аппарат для тонкой механической очистки. Газ проходит сквозь тысячи тканевых рукавов, которые задерживают до 99.9% мелкодисперсной пыли. Оснащен системой импульсной регенерации (встряхивания) для автоматической очистки ткани." },
+                11: { t: "Скруббер (Мокрая очистка)", d: "Аппарат, в котором газ промывается жидкостью (обычно водой или щелочным раствором). Эффективно удаляет не только остатки пыли, но и опасные газообразные примеси (SO2, HCl), охлаждая поток перед дальнейшей обработкой." },
+                12: { t: "Плазменный реактор", d: "Инновационная установка финишной очистки. Высокоэнергетическая плазма разрушает молекулы токсичных органических соединений и диоксинов, превращая их в безопасные элементарные компоненты. Обеспечивает высочайший экологический стандарт." },
+                13: { t: "Дымовая труба", d: "Финальное звено системы. Высотное сооружение создает естественную тягу и обеспечивает рассеивание полностью очищенного и охлажденного газа в верхних слоях атмосферы, исключая концентрацию вредных веществ у земли." }
             },
             kz: {
-                8: { t: "Металлургиялық пеш", d: "Металл балқытылатын негізгі жылу техникалық агрегат..." },
-                // ... (оставь свой текст для KZ здесь)
-                aboutT: "Жоба туралы",
-                aboutD: "Газды тазарту өнеркәсіптік кешенінің интерактивті 3D моделі. Ішкі компоненттерді көру үшін X-Ray функциясын қолданыңыз."
+                8: { t: "Металлургиялық пеш", d: "Металл балқытылатын негізгі жылу техникалық агрегат. Отынның жануы және шикізаттың балқуы кезінде қатты қоспалары, көміртегі және күкірт оксидтері бар түтін газдарының күрделі қоспасы түзіледі, ол шығарылмас бұрын көп сатылы тазартуды қажет етеді." },
+                9: { t: "Циклондық сепаратор", d: "Құрғақ тазартудың бірінші сатысы. Газ ағыны конус ішінде иіріледі; шаңның ауыр бөлшектері ортадан тепкіш күштің әсерімен қабырғаларға қысылып, бункерге шөгеді, ал ірі фракциядан тазартылған газ жоғары қарай кетеді." },
+                10: { t: "Жеңді сүзгі (Baghouse)", d: "Жұқа механикалық тазарту аппараты. Газ мыңдаған мата жеңдер арқылы өтеді, олар ұсақ шаңның 99.9%-на дейін ұстап қалады. Матаны автоматты түрде тазарту үшін импульстік регенерация (сілку) жүйесімен жабдықталған." },
+                11: { t: "Скруббер (Дымқыл тазарту)", d: "Газ сұйықтықпен (әдетте сумен немесе сілтілі ерітіндімен) жуылатын аппарат. Шаң қалдықтарын ғана емес, сонымен қатар қауіпті газ тәрізді қоспаларды (SO2, HCl) тиімді түрде жояды, ағынды одан әрі өңдеу алдында суытады." },
+                12: { t: "Плазмалық реактор", d: "Фиништік тазартудың инновациялық қондырғысы. Жоғары энергиялы плазма улы органикалық қосылыстар мен диоксиндердің молекулаларын бұзып, оларды қауіпсіз элементарлы компоненттерге айналдырады. Ең жоғары экологиялық стандартты қамтамасыз етеді." },
+                13: { t: "Түтін мұржасы", d: "Жүйенің соңғы буыны. Биік құрылыс табиғи тартымды тудырады және толық тазартылған әрі суытылған газдың атмосфераның жоғарғы қабаттарына таралуын қамтамасыз етеді, бұл зиянды заттардың жерге жақын жиналуын болдырмайды." }
             }
         };
 
         const panel = document.getElementById('info-panel');
         const title = document.getElementById('info-title');
         const text = document.getElementById('info-text');
-        const modelViewer = document.querySelector('#main-model');
 
         function setLang(lang) {
             currentLang = lang;
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
             });
-            document.getElementById('about-title').innerText = content[lang].aboutT;
-            document.getElementById('about-desc').innerText = content[lang].aboutD;
             hideInfo();
         }
 
@@ -207,35 +141,6 @@
         }
 
         function hideInfo() { panel.classList.remove('active'); }
-
-        function toggleAbout() {
-            const modal = document.getElementById('about-modal');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        // Логика X-RAY
-        function toggleXray() {
-            xrayEnabled = !xrayEnabled;
-            const btn = document.getElementById('xray-btn');
-            const materials = modelViewer.model.materials;
-
-            materials.forEach(mat => {
-                // Если в имени материала есть 'Outer' или 'Shell' (или просто ко всем внешним)
-                // ВАЖНО: замени 'Body' на имя своего материала корпуса из Blender
-                if (mat.name.includes('Body') || mat.name.includes('Outer')) {
-                    mat.setAlphaMode(xrayEnabled ? "BLEND" : "OPAQUE");
-                    mat.pbrMetallicRoughness.setBaseColorFactor(xrayEnabled ? [1, 1, 1, 0.2] : [1, 1, 1, 1]);
-                }
-                
-                // Если есть светящиеся части
-                if (mat.name.includes('Glow') || mat.name.includes('Inner')) {
-                    mat.setEmissiveFactor(xrayEnabled ? [0, 0.6, 1] : [0, 0, 0]);
-                }
-            });
-
-            btn.classList.toggle('active', xrayEnabled);
-            btn.innerText = xrayEnabled ? "ВЫКЛЮЧИТЬ X-RAY" : "X-RAY РЕЖИМ";
-        }
     </script>
 </body>
 </html>
