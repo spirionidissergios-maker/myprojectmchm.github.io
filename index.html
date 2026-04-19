@@ -6,17 +6,24 @@
     <title>3D Технологии Газоочистки</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        :root { --accent: #00a8ff; }
+        :root { --accent: #00a8ff; --xray-color: #00f2ff; }
         body { margin: 0; background: #121212; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; color: white; }
         
         model-viewer { width: 100vw; height: 100vh; background-color: #121212; }
 
-        /* Переключатель языков */
-        .lang-switcher {
+        /* Панель управления (языки и режимы) */
+        .controls-top {
             position: absolute;
             top: 25px;
             right: 25px;
             z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .btn-group {
             display: flex;
             gap: 8px;
             background: rgba(0,0,0,0.5);
@@ -24,7 +31,7 @@
             border-radius: 8px;
         }
 
-        .lang-btn {
+        .ui-btn {
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
@@ -35,7 +42,16 @@
             transition: 0.3s;
         }
 
-        .lang-btn.active { background: var(--accent); border-color: var(--accent); font-weight: bold; }
+        .ui-btn:hover { background: rgba(255,255,255,0.1); }
+        .ui-btn.active { background: var(--accent); border-color: var(--accent); font-weight: bold; }
+        
+        /* Специфическая кнопка рентгена */
+        #xray-toggle.enabled {
+            background: var(--xray-color);
+            color: #000;
+            box-shadow: 0 0 15px var(--xray-color);
+            border-color: #fff;
+        }
 
         /* Инфо-панель */
         #info-panel {
@@ -78,9 +94,14 @@
 </head>
 <body>
 
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLang('ru')">RU</button>
-        <button class="lang-btn" onclick="setLang('kz')">KZ</button>
+    <div class="controls-top">
+        <div class="btn-group">
+            <button class="ui-btn active lang-btn" onclick="setLang('ru')">RU</button>
+            <button class="ui-btn lang-btn" onclick="setLang('kz')">KZ</button>
+        </div>
+        <div class="btn-group">
+            <button id="xray-toggle" class="ui-btn" onclick="toggleXray()">РЕНТГЕН: OFF</button>
+        </div>
     </div>
 
     <div id="info-panel">
@@ -88,8 +109,7 @@
         <p id="info-text">Выберите объект на модели для просмотра подробных характеристик.</p>
     </div>
 
-    <model-viewer src="my_model.glb" ar camera-controls tone-mapping="neutral" shadow-intensity="2" auto-rotate>
-
+    <model-viewer id="model" src="my_model.glb" ar camera-controls tone-mapping="neutral" shadow-intensity="2" auto-rotate>
         <button class="Hotspot" slot="hotspot-8" data-position="0.5644m 1.8532m 18.3852m" data-normal="0m 0m 1m" onmouseover="showData(8)" onmouseout="hideInfo()"></button>
         <button class="Hotspot" slot="hotspot-9" data-position="11.1544m 4.0896m 14.5385m" data-normal="0.0958m -0.2075m 0.9735m" onmouseover="showData(9)" onmouseout="hideInfo()"></button>
         <button class="Hotspot" slot="hotspot-10" data-position="22.2750m 4.0559m 17.3067m" data-normal="0m 0m 1m" onmouseover="showData(10)" onmouseout="hideInfo()"></button>
@@ -102,28 +122,59 @@
 
     <script>
         let currentLang = 'ru';
+        let xrayEnabled = false;
+        const modelViewer = document.querySelector('#model');
+
         const content = {
             ru: {
-                8: { t: "Металлургическая печь", d: "Основной теплотехнический агрегат, где происходит плавление металла. В процессе горения топлива и плавления сырья образуется сложная смесь дымовых газов, содержащая твердые взвеси, оксиды углерода и серы, требующая многоступенчатой очистки перед выбросом." },
-                9: { t: "Циклонный сепаратор", d: "Первая ступень сухой очистки. Газовый поток закручивается внутри конуса; тяжелые частицы пыли под действием центробежной силы прижимаются к стенкам и оседают в бункере, а очищенный от крупной фракции газ уходит вверх." },
-                10: { t: "Рукавный фильтр (Baghouse)", d: "Аппарат для тонкой механической очистки. Газ проходит сквозь тысячи тканевых рукавов, которые задерживают до 99.9% мелкодисперсной пыли. Оснащен системой импульсной регенерации (встряхивания) для автоматической очистки ткани." },
-                11: { t: "Скруббер (Мокрая очистка)", d: "Аппарат, в котором газ промывается жидкостью (обычно водой или щелочным раствором). Эффективно удаляет не только остатки пыли, но и опасные газообразные примеси (SO2, HCl), охлаждая поток перед дальнейшей обработкой." },
-                12: { t: "Плазменный реактор", d: "Инновационная установка финишной очистки. Высокоэнергетическая плазма разрушает молекулы токсичных органических соединений и диоксинов, превращая их в безопасные элементарные компоненты. Обеспечивает высочайший экологический стандарт." },
-                13: { t: "Дымовая труба", d: "Финальное звено системы. Высотное сооружение создает естественную тягу и обеспечивает рассеивание полностью очищенного и охлажденного газа в верхних слоях атмосферы, исключая концентрацию вредных веществ у земли." }
+                8: { t: "Металлургическая печь", d: "Основной теплотехнический агрегат, где происходит плавление металла." },
+                9: { t: "Циклонный сепаратор", d: "Первая ступень сухой очистки. Газовый поток закручивается, отделяя тяжелые частицы." },
+                10: { t: "Рукавный фильтр", d: "Аппарат для тонкой механической очистки через тканевые рукава." },
+                11: { t: "Скруббер", d: "Мокрая очистка газа жидкостью для удаления пыли и химических примесей." },
+                12: { t: "Плазменный реактор", d: "Инновационная очистка плазмой для разрушения токсичных молекул." },
+                13: { t: "Дымовая труба", d: "Высотное сооружение для рассеивания очищенного газа." }
             },
             kz: {
-                8: { t: "Металлургиялық пеш", d: "Металл балқытылатын негізгі жылу техникалық агрегат. Отынның жануы және шикізаттың балқуы кезінде қатты қоспалары, көміртегі және күкірт оксидтері бар түтін газдарының күрделі қоспасы түзіледі, ол шығарылмас бұрын көп сатылы тазартуды қажет етеді." },
-                9: { t: "Циклондық сепаратор", d: "Құрғақ тазартудың бірінші сатысы. Газ ағыны конус ішінде иіріледі; шаңның ауыр бөлшектері ортадан тепкіш күштің әсерімен қабырғаларға қысылып, бункерге шөгеді, ал ірі фракциядан тазартылған газ жоғары қарай кетеді." },
-                10: { t: "Жеңді сүзгі (Baghouse)", d: "Жұқа механикалық тазарту аппараты. Газ мыңдаған мата жеңдер арқылы өтеді, олар ұсақ шаңның 99.9%-на дейін ұстап қалады. Матаны автоматты түрде тазарту үшін импульстік регенерация (сілку) жүйесімен жабдықталған." },
-                11: { t: "Скруббер (Дымқыл тазарту)", d: "Газ сұйықтықпен (әдетте сумен немесе сілтілі ерітіндімен) жуылатын аппарат. Шаң қалдықтарын ғана емес, сонымен қатар қауіпті газ тәрізді қоспаларды (SO2, HCl) тиімді түрде жояды, ағынды одан әрі өңдеу алдында суытады." },
-                12: { t: "Плазмалық реактор", d: "Фиништік тазартудың инновациялық қондырғысы. Жоғары энергиялы плазма улы органикалық қосылыстар мен диоксиндердің молекулаларын бұзып, оларды қауіпсіз элементарлы компоненттерге айналдырады. Ең жоғары экологиялық стандартты қамтамасыз етеді." },
-                13: { t: "Түтін мұржасы", d: "Жүйенің соңғы буыны. Биік құрылыс табиғи тартымды тудырады және толық тазартылған әрі суытылған газдың атмосфераның жоғарғы қабаттарына таралуын қамтамасыз етеді, бұл зиянды заттардың жерге жақын жиналуын болдырмайды." }
+                8: { t: "Металлургиялық пеш", d: "Металл балқытылатын негізгі жылу техникалық агрегат." },
+                9: { t: "Циклондық сепаратор", d: "Құрғақ тазартудың бірінші сатысы." },
+                10: { t: "Жеңді сүзгі", d: "Жұқа механикалық тазарту аппараты." },
+                11: { t: "Скруббер", d: "Газды сұйықтықпен жуу арқылы тазарту." },
+                12: { t: "Плазмалық реактор", d: "Улы молекулаларды жоюға арналған плазмалық қондырғы." },
+                13: { t: "Түтін мұржасы", d: "Тазартылған газды атмосфераға шығару мұржасы." }
             }
         };
 
         const panel = document.getElementById('info-panel');
         const title = document.getElementById('info-title');
         const text = document.getElementById('info-text');
+
+        // Логика переключения Рентгена
+        function toggleXray() {
+            xrayEnabled = !xrayEnabled;
+            const btn = document.getElementById('xray-toggle');
+            
+            if (xrayEnabled) {
+                btn.innerText = "РЕНТГЕН: ON";
+                btn.classList.add('enabled');
+                applyXray(0.2); // Устанавливаем прозрачность 20%
+            } else {
+                btn.innerText = "РЕНТГЕН: OFF";
+                btn.classList.remove('enabled');
+                applyXray(1.0); // Возвращаем полную видимость
+            }
+        }
+
+        function applyXray(opacity) {
+            if (!modelViewer.model) return;
+            
+            modelViewer.model.materials.forEach((material) => {
+                // Включаем поддержку прозрачности для материала
+                material.setAlphaMode(opacity < 1.0 ? "BLEND" : "OPAQUE");
+                // Меняем базовый цвет (RGBA), где A - это прозрачность
+                const p = material.pbrMetallicRoughness.baseColorFactor;
+                material.pbrMetallicRoughness.setBaseColorFactor([p[0], p[1], p[2], opacity]);
+            });
+        }
 
         function setLang(lang) {
             currentLang = lang;
