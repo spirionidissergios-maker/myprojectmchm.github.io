@@ -3,82 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Ray Промышленная Установка</title>
+    <title>3D Технологии Газоочистки</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-    
     <style>
-        body { margin: 0; background-color: #1a1a1a; color: white; font-family: sans-serif; }
-        model-viewer { width: 100%; height: 80vh; background-color: #1a1a1a; }
-        .controls { padding: 20px; text-align: center; }
+        :root { --accent: #00a8ff; }
+        body { margin: 0; background: #121212; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; color: white; }
         
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
-            background: #007bff;
+        model-viewer { width: 100vw; height: 100vh; background-color: #121212; }
+
+        /* --- НОВЫЕ СТИЛИ: Управление и Страница --- */
+        .extra-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 110;
+        }
+
+        .action-btn {
+            background: rgba(0, 168, 255, 0.15);
+            border: 1px solid var(--accent);
             color: white;
-            border: none;
+            padding: 10px 22px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .action-btn:hover { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .action-btn.active { background: #ff4757; border-color: #ff4757; }
+
+        #full-info-page {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #121212;
+            z-index: 2000;
+            display: none;
+            padding: 60px 40px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .close-page-btn {
+            position: fixed; top: 25px; right: 40px;
+            font-size: 45px; cursor: pointer; color: var(--accent); background: none; border: none;
+        }
+
+        .info-wrapper { max-width: 800px; margin: 0 auto; color: #e0e0e0; line-height: 1.8; }
+        .info-wrapper h1 { color: var(--accent); }
+
+        /* --- ВАШИ ОРИГИНАЛЬНЫЕ СТИЛИ --- */
+        .lang-switcher {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 14px;
+            cursor: pointer;
             border-radius: 5px;
+            font-size: 14px;
             transition: 0.3s;
         }
-        button:hover { background: #0056b3; }
-        .active { background: #ff4500; }
+
+        .lang-btn.active { background: var(--accent); border-color: var(--accent); font-weight: bold; }
+
+        #info-panel {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 380px;
+            background: rgba(25, 25, 25, 0.95);
+            backdrop-filter: blur(15px);
+            border-left: 5px solid var(--accent);
+            padding: 25px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #info-panel.active { opacity: 1; transform: translateX(0); }
+        #info-panel h2 { margin: 0 0 12px 0; font-size: 20px; color: var(--accent); letter-spacing: 1px; }
+        #info-panel p { margin: 0; font-size: 15px; line-height: 1.7; color: #e0e0e0; text-align: justify; }
+
+        .Hotspot {
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.8);
+            transition: transform 0.3s ease;
+        }
+        .Hotspot:hover { transform: scale(1.6); background: #fff; }
+
+        #ar-button { background: #fff; border-radius: 20px; border: none; padding: 12px 24px; position: absolute; bottom: 30px; right: 30px; font-weight: bold; cursor: pointer; color: #000; }
     </style>
 </head>
 <body>
 
-    <model-viewer 
-        id="xray-model"
-        src="model.glb" 
-        ar 
-        camera-controls 
-        shadow-intensity="1" 
-        exposure="1"
-        environment-image="neutral">
-    </model-viewer>
-
-    <div class="controls">
-        <button id="xray-btn">Включить рентген (X-Ray)</button>
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+        <button class="lang-btn" onclick="setLang('kz')">KZ</button>
     </div>
 
+    <div class="extra-controls">
+        <button class="action-btn" id="xray-btn" onclick="toggleXray()">Рентген: Выкл</button>
+        <button class="action-btn" onclick="openFullInfo()">О проекте</button>
+    </div>
+
+    <div id="full-info-page">
+        <button class="close-page-btn" onclick="closeFullInfo()">×</button>
+        <div class="info-wrapper">
+            <h1 id="full-title">О технологии газоочистки</h1>
+            <div id="full-description">
+                <p>Данный интерактивный комплекс предназначен для визуализации процессов фильтрации промышленных выбросов. Система включает в себя этапы первичной сепарации, тонкой фильтрации и финальной деструкции токсичных соединений.</p>
+                <p>Используйте 3D-модель для изучения каждого узла. Кнопка "Рентген" позволяет увидеть внутреннюю структуру системы без скрытия внешних корпусов.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="info-panel">
+        <h2 id="info-title">Загрузка...</h2>
+        <p id="info-text">Выберите объект на модели для просмотра подробных характеристик.</p>
+    </div>
+
+    <model-viewer id="main-model" src="my_model.glb" ar camera-controls tone-mapping="neutral" shadow-intensity="2" auto-rotate>
+
+        <button class="Hotspot" slot="hotspot-8" data-position="0.5644m 1.8532m 18.3852m" data-normal="0m 0m 1m" onmouseover="showData(8)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-9" data-position="11.1544m 4.0896m 14.5385m" data-normal="0.0958m -0.2075m 0.9735m" onmouseover="showData(9)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-10" data-position="22.2750m 4.0559m 17.3067m" data-normal="0m 0m 1m" onmouseover="showData(10)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-11" data-position="30.9266m 4.4094m 15.5866m" data-normal="-0.0980m 0m 0.9951m" onmouseover="showData(11)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-12" data-position="38.7348m 1.9256m 14.6947m" data-normal="-0.0157m -0.4366m 0.8994m" onmouseover="showData(12)" onmouseout="hideInfo()"></button>
+        <button class="Hotspot" slot="hotspot-13" data-position="45.1935m 13.1032m 15.1441m" data-normal="-0.0979m 0.0204m 0.9949m" onmouseover="showData(13)" onmouseout="hideInfo()"></button>
+
+        <button slot="ar-button" id="ar-button">AR РЕЖИМ</button>
+    </model-viewer>
+
     <script>
-        const modelViewer = document.querySelector('#xray-model');
-        const btn = document.querySelector('#xray-btn');
-        let isXray = false;
+        let currentLang = 'ru';
+        let isXrayMode = false;
 
-        btn.addEventListener('click', () => {
-            isXray = !isXray;
-            
-            // Получаем все материалы модели
-            const materials = modelViewer.model.materials;
+        const content = {
+            ru: {
+                8: { t: "Металлургическая печь", d: "Основной теплотехнический агрегат, где происходит плавление металла..." },
+                9: { t: "Циклонный сепаратор", d: "Первая ступень сухой очистки. Газовый поток закручивается внутри конуса..." },
+                10: { t: "Рукавный фильтр (Baghouse)", d: "Аппарат для тонкой механической очистки. Задерживают до 99.9% пыли." },
+                11: { t: "Скруббер (Мокрая очистка)", d: "Аппарат, в котором газ промывается жидкостью. Удаляет газообразные примеси." },
+                12: { t: "Плазменный реактор", d: "Инновационная установка финишной очистки. Разрушает молекулы токсинов." },
+                13: { t: "Дымовая труба", d: "Обеспечивает рассеивание очищенного газа в верхних слоях атмосферы." }
+            },
+            kz: {
+                8: { t: "Металлургиялық пеш", d: "Металл балқытылатын негізгі жылу техникалық агрегат..." },
+                9: { t: "Циклондық сепаратор", d: "Құрғақ тазартудың бірінші сатысы..." },
+                10: { t: "Жеңді сүзгі (Baghouse)", d: "Жұқа механикалық тазарту аппараты..." },
+                11: { t: "Скруббер (Дымқыл тазарту)", d: "Газ сұйықтықпен жуылатын аппарат..." },
+                12: { t: "Плазмалық реактор", d: "Фиништік тазартудың инновациялық қондырғысы..." },
+                13: { t: "Түтін мұржасы", d: "Биік құрылыс табиғи тартымды тудырады..." }
+            }
+        };
 
-            materials.forEach((material) => {
-                // Если это внешний корпус (ищем по имени из Blender)
-                if (material.name === 'Body_Outer_Material') {
-                    if (isXray) {
-                        material.setAlphaMode("BLEND");
-                        material.pbrMetallicRoughness.setBaseColorFactor([0.5, 0.5, 0.5, 0.2]); // 0.2 - прозрачность
-                    } else {
-                        material.setAlphaMode("OPAQUE");
-                        material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]); // Возвращаем металл
-                    }
-                }
+        const panel = document.getElementById('info-panel');
+        const title = document.getElementById('info-title');
+        const text = document.getElementById('info-text');
 
-                // Если это внутренности — заставляем их светиться
-                if (material.name === 'Internal_Material') {
-                    if (isXray) {
-                        // Включаем свечение (эмиссию) [R, G, B]
-                        material.setEmissiveFactor([1, 0.3, 0]); // Оранжевый огонь
-                    } else {
-                        material.setEmissiveFactor([0, 0, 0]); // Выключаем свет
-                    }
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
+            });
+            hideInfo();
+        }
+
+        function showData(id) {
+            const item = content[currentLang][id];
+            title.innerText = item.t;
+            text.innerText = item.d;
+            panel.classList.add('active');
+        }
+
+        function hideInfo() { panel.classList.remove('active'); }
+
+        /* --- НОВАЯ ЛОГИКА --- */
+
+        function toggleXray() {
+            const mv = document.getElementById('main-model');
+            const btn = document.getElementById('xray-btn');
+            if (!mv.model) return;
+
+            isXrayMode = !isXrayMode;
+
+            mv.model.materials.forEach((material) => {
+                if (isXrayMode) {
+                    material.pbrMetallicRoughness.setBaseColorFactor([0.1, 0.6, 1.0, 0.25]);
+                    material.setAlphaMode("BLEND");
+                    btn.innerText = "Рентген: Вкл";
+                    btn.classList.add('active');
+                } else {
+                    material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+                    material.setAlphaMode("OPAQUE");
+                    btn.innerText = "Рентген: Выкл";
+                    btn.classList.remove('active');
                 }
             });
+        }
 
-            // Меняем текст кнопки
-            btn.textContent = isXray ? "Выключить рентген" : "Включить рентген";
-            btn.classList.toggle('active');
-        });
+        function openFullInfo() {
+            document.getElementById('full-info-page').style.display = 'block';
+        }
+
+        function closeFullInfo() {
+            document.getElementById('full-info-page').style.display = 'none';
+        }
     </script>
 </body>
 </html>
